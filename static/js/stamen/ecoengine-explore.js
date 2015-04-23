@@ -1231,9 +1231,12 @@
         d3.select("#export-checklist")
           .attr(ECO.endpoints.observations + "?format=csv&fields=scientific_name" + orderString + facetstring + qString + bboxString + dateString + "&page_size=" + queryObj.page_size + pageString);
 d3.select("#export-checklist").attr('hey');
-console.log(d3.select("#export-checklist").attr('hey'))
-console.log(ECO.endpoints.observations + "?format=csv&fields=scientific_name" + orderString + facetstring + qString + bboxString + dateString + "&page_size=" + queryObj.page_size + pageString)
+console.log(d3.select("#export-checklist"))
 console.log(d3.select("#export-geojson"))
+console.log(d3.select("#export-geojson").attr('hey_geo'))
+console.log(d3.select("#export-checklist").attr('hey_chekc'))
+console.log(ECO.endpoints.observations + "?format=csv&fields=scientific_name" + orderString + facetstring + qString + bboxString + dateString + "&page_size=" + queryObj.page_size + pageString)
+
 
         loadingCheck("observations");
         d3.select("#results-loading")
