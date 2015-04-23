@@ -1229,8 +1229,8 @@
         d3.select("#export-geojson")
           .attr("href", ECO.endpoints.observations + "?format=geojson" + orderString + facetstring + qString + bboxString + dateString + "&page_size=" + queryObj.page_size + pageString);
 	d3.select("#export-checklist")
-	  .attr("href", ECO.endpoints.observations + "?format=geojson" + orderString + facetstring + qString + bboxString + dateString + "&page_size=" + queryObj.page_size + pageString);
-console.log(16)
+	  .attr("href", ECO.endpoints.observations + "?format=csv&fields=scientific_name" + orderString + facetstring + qString + bboxString + dateString + "&page_size=" + queryObj.page_size + pageString);
+console.log(17)
 console.log(d3.select("#export-checklist")[0][0].href)
 console.log(d3.select("#export-geojson")[0][0].href)
 console.log(ECO.endpoints.observations + "?format=csv&fields=scientific_name" + orderString + facetstring + qString + bboxString + dateString + "&page_size=" + queryObj.page_size + pageString)
