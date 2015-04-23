@@ -1231,7 +1231,7 @@
         d3.select("#export-checklist")
           .attr(ECO.endpoints.observations + "?format=csv&fields=scientific_name" + orderString + facetstring + qString + bboxString + dateString + "&page_size=" + queryObj.page_size + pageString);
 console.log(d3.select("#export-checklist")
-          .attr(ECO.endpoints.observations + "?format=csv&fields=scientific_name" + orderString + facetstring + qString + bboxString + dateString + "&page_size=" + queryObj.page_size + pageString);)
+          .attr(ECO.endpoints.observations + "?format=csv&fields=scientific_name" + orderString + facetstring + qString + bboxString + dateString + "&page_size=" + queryObj.page_size + pageString))
 console.log(ECO.endpoints.observations + "?format=csv&fields=scientific_name" + orderString + facetstring + qString + bboxString + dateString + "&page_size=" + queryObj.page_size + pageString)
 
         loadingCheck("observations");
