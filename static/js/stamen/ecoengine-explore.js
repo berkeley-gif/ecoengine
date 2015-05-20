@@ -748,7 +748,7 @@
           var bars = fieldplot.append("div")
               .attr("class", "bar-group")
               .selectAll("div.bars")
-              .data(function(d) { return d.values; })
+              .data(function(d) { return d.values; console.log(d) })
               .enter().append("div")
               .attr("class", "bars")
               .attr("title", "Click to toggle filter")
