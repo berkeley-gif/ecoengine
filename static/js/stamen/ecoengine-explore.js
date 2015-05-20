@@ -731,8 +731,7 @@
           var fieldplot = d3.select("#search-bars")
             .html("")
             .selectAll("div.field-plot")
-            .data(searchfields.map(function(key) { return {
-console.log(key)
+            .data(searchfields.map(function(key) { console.log(key); return {
               "field": key,
               "values": data.fields[key]
             }}))
