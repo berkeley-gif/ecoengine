@@ -720,6 +720,7 @@
           }
           barwidth.domain([0, maxcount]);
 
+console.log(d3.keys(data.fields))
           var searchfields = d3.keys(data.fields);
           searchfields.sort(function(a,b){
             var one = a in sortOrder ? sortOrder[a] : 100;
@@ -772,7 +773,7 @@
           bars.append("div")
             .attr("class", "bar")
             .style("height", "12px")
-            .style("width", function(d) { return Math.round(barwidth(d[1])) + "px"; console.log(d);});
+            .style("width", function(d) { return Math.round(barwidth(d[1])) + "px"; });
 
           bars.append("span")
             .text(function(d) { return " " + capitaliseFirstLetter(d[0]); });
