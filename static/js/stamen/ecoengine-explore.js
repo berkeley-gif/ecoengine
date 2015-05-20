@@ -720,7 +720,6 @@
           }
           barwidth.domain([0, maxcount]);
 
-console.log(data)
           var searchfields = d3.keys(data.fields);
           searchfields.sort(function(a,b){
             var one = a in sortOrder ? sortOrder[a] : 100;
@@ -733,6 +732,7 @@ console.log(data)
             .html("")
             .selectAll("div.field-plot")
             .data(searchfields.map(function(key) { return {
+console.log(key)
               "field": key,
               "values": data.fields[key]
             }}))
