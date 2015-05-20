@@ -748,7 +748,7 @@
           var bars = fieldplot.append("div")
               .attr("class", "bar-group")
               .selectAll("div.bars")
-              .data(function(d) { return d.values; console.log(d) })
+              .data(function(d) { return d.values; })
               .enter().append("div")
               .attr("class", "bars")
               .attr("title", "Click to toggle filter")
@@ -772,7 +772,7 @@
           bars.append("div")
             .attr("class", "bar")
             .style("height", "12px")
-            .style("width", function(d) { return Math.round(barwidth(d[1])) + "px"; });
+            .style("width", function(d) { return Math.round(barwidth(d[1])) + "px"; console.log(d);});
 
           bars.append("span")
             .text(function(d) { return " " + capitaliseFirstLetter(d[0]); });
