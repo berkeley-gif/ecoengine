@@ -720,7 +720,7 @@
           }
           barwidth.domain([0, maxcount]);
 
-console.log(d3.keys(data.fields))
+console.log(data)
           var searchfields = d3.keys(data.fields);
           searchfields.sort(function(a,b){
             var one = a in sortOrder ? sortOrder[a] : 100;
