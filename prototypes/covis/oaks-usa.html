@@ -2,16 +2,16 @@
 <meta charset="utf-8">
 <style>
 body {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "Montserrat", Avenir Next, Arial, Helvetica, sans-serif;
   margin: 30px auto;
   background: #282828;
-  color: #fff;
-  font-size: 13px;
+  color: #eee;
+  font-size: 15px;
   text-align: center;
 }
 #maps {
-  background: #000;
-  margin: 20px 0;
+  background: #111;
+  margin: 14px 0;
   padding: 20px 10px 0px;
   text-align: left;
 }
@@ -19,16 +19,19 @@ body {
   margin: 0 6px 6px 0;
 }
 .map {
+  padding: 14px;
   display: inline-block;
-  height: 140px;
-  width: 140px;
+  height: 180px;
+  width: 180px;
   position: relative;
 }
 .map .title {
   position: absolute;
-  top: 2px;
-  width: 100%;
-  text-align: center;
+  top: 0px;
+  left: 22px;
+  width: 90%;
+  line-height: 1.1em;
+  z-index: 10;
 }
 a {
   color: #fff;
@@ -36,13 +39,22 @@ a {
 a:hover {
   color: #ccc;
 }
+p {
+  color: #bbb;
+}
+p strong {
+  color: #eee;
+}
 #title-input {
   text-align: center;
-  background: transparent;
-  border: none;
+  background: #111;
+  border: 2px solid #111;
+  border-radius: 3px;
   color: #fff;
   font-size: 18px;
+  padding: 4px;
   margin-bottom: 6px;
+  width: 240px;
 }
 path {
   fill: none;
@@ -50,8 +62,11 @@ path {
 }
 
 .land {
-  fill: #181818;
-  stroke: #383838;
+  fill: #171610;
+  stroke: #2b2824;
+}
+.water {
+  fill: #061924;
 }
 .hexagons path {
   stroke-width: 0.5px;
@@ -78,12 +93,20 @@ small {
   color: #999;
   line-height: 1.5em;
 }
+#title-input {
+    animation: blinker 1.7s cubic-bezier(.5, 0, 1, 1) infinite alternate;  
+}
+@keyframes blinker {  
+  from { border-color: #111; }
+  to { border-color: #fb5; }
+}
 </style>
 <body>
 
-<input type="text" value="quercus" id="title-input"></input><br/>
+<input type="text" value="Sceloporus" id="title-input" placeholder=""></input><br/>
 <small>Split by </small>
 <select id="chart-split">
+  <option value="country">Country</option>
   <option value="scientific_name">Scientific Name</option>
   <option value="genus">Genus</option>
   <option value="family">Family</option>
@@ -92,16 +115,31 @@ small {
   <option value="phylum">Phylum</option>
   <option value="kingdom">Kingdom</option>
   <option value="state_province">State/Province</option>
-  <option value="country">Country</option>
   <option value="observation_type">Observation Type</option>
   <option value="decade">Decade</option>
 </select>
 <div id="maps"></div>
+<p>Color palette <select id="colorbrewer"><option>RdYlGn</option></select> <span id="color-blocks"></span></p>
+<p>Hex radius <input type="range" id="bin-size" value="3" min="0.5" max="10" step="0.5"> <strong><span id="bin-size-print" style="display: inline-block; width: 24px;">3</span> px</strong></p> 
 <div class="notes">
+  <h4>What is this?</h4>
+  <p>Hexbin maps of georeferenced observations from <a href="https://ecoengine.berkeley.edu/">Berkeley Ecoengine</a>.</p>
+  <p>You can search the Ecoengine right on this page!</p>
+  <h4>How?</h4>
+  <p>Use the blinking search box at the top. Hit <strong>Enter</strong> to search!
+  <p>Some example terms:</p>
+  <ul>
+    <li>Quercus</li>
+    <li>Poaceae</li>
+    <li>Dipodomys</li>
+    <li>Bufo</li>
+  </ul>
+  <p>Leave the field blank to see results from the entire collection. Pretty cool!</p>
+  <p>Multiple charts will be drawn based on the <strong>Split by</strong> dropdown. Try searching for "Rufus" and splitting by Class. You'll notice this query returns both mammals and birds.</p>
+  <p>If loading seems to stop, try "kicking it" by refreshing the page.</p>
   <h4>Query List</h4>
   <ul id="query-list">
   </ul>
-  <p>See also <a href="multiples-taxa.html">Species Range Maps</a></p>
 </div>
 
 <script src="http://d3js.org/d3.v3.min.js"></script>
@@ -111,8 +149,13 @@ small {
 <script src="../lib/hashnav.js"></script>
 <script>
 // Based on http://bl.ocks.org/mbostock/4330486
-var search_term = "quercus";
-var chart_split = "scientific_name";
+var search_term = "Sceloporus";
+var chart_split = "country";
+var colors = colorbrewer.RdYlGn[6];
+updateColorBlocks(colors);
+
+/* A useful console command to get colorbrewer scales as hex-codes */
+// colorscale.range().map(function(d,i) { return d3.rgb(d).toString(); }).join(" ")
 
 function logHash(hash) {            
   var params = hash.parameters;
@@ -129,7 +172,7 @@ initHashNav(logHash);
 
 /* Configuration */
 
-var limit = 24;
+var limit = 18;
 var search_query = "https://ecoengine.berkeley.edu/api/search/?q=" + search_term + "&selected_facets=georeferenced_exact%3A%22true%22&facets_limit=" + limit;
 var queries = [];
 
@@ -165,6 +208,7 @@ d3.select("#title-input").on("change", function() {
   search_query = "https://ecoengine.berkeley.edu/api/search/?q=" + this.value + "&selected_facets=georeferenced_exact%3A%22true%22&facets_limit=100";
   search(search_query);
 });
+
 d3.select("#chart-split").on("change", function() {
   dispatch.reset();
   chart_split = this.value;  
@@ -172,12 +216,25 @@ d3.select("#chart-split").on("change", function() {
 });
 
 function ready(queries) {
-  var colorscale = d3.scale.ordinal()
-    .range(colorbrewer.Spectral[10]); 
-
   var lizards = queries.map(function() { return []; });
 
+  var colorscale = d3.scale.ordinal()
+      .range(colors); 
+
   /* Interface */
+
+  d3.select("#colorbrewer")
+    .on("change", function() {
+      colors = colorbrewer[this.value][6];
+      colorscale.range(colors);
+      updateColorBlocks(colors);
+      d3.selectAll("#query-list li a").style("color", function(d,i) { return colors[i]; })
+      dispatch.refreshbins("all");
+    })
+    .selectAll("option")
+    .data(d3.keys(colorbrewer))
+    .enter().append("option")
+    .text(String)
 
   d3.select("#query-list")
     .selectAll("li")
@@ -189,13 +246,13 @@ function ready(queries) {
     .text(function(d) { return d.alias; })
 
   /* Chart */
-  var width = 140,
-      height = 140,
+  var width = 180,
+      height = 180,
       parseDate = d3.time.format("%x").parse;
 
   var projection = d3.geo.albers()
-      .scale(380)
-      .translate([7*width/5, 4*height/7])
+      .scale(200)
+      .translate([0.5*width, 0.43*height])
       .precision(.1);
 
   var hexbin = d3.hexbin()
@@ -205,6 +262,22 @@ function ready(queries) {
   var radius = d3.scale.sqrt()
       .domain([1, 500])
       .range([1, 3]);
+
+  d3.select("#bin-size")
+    .on("change", function() {
+      d3.select("#bin-size-print").text(this.value);
+      hexbin.radius(this.value);
+      radius.range([1, +this.value+0.5]);
+      d3.selectAll(".hexagons path").remove();
+      dispatch.refreshbins("all");
+    })
+    .on("input", function() {
+      d3.select("#bin-size-print").text(this.value);
+      hexbin.radius(this.value);
+      radius.range([1, +this.value+0.5]);
+      d3.selectAll(".hexagons path").remove();
+      dispatch.refreshbins("all");
+    });
 
   var path = d3.geo.path()
       .projection(projection);
@@ -240,11 +313,10 @@ function ready(queries) {
       .text(query.alias);
 
     svg.append("text")
-      .attr("x", width/2)
-      .attr("y", height-12)
-      .attr("text-anchor", "middle")
+      .attr("x", 4)
+      .attr("y", height-4)
       .attr("class", "count")
-      .text("0 of ?");
+      .text("Loaded 0 of ?");
 
     function refreshbins() {
       var color = colorscale(index);
@@ -271,6 +343,7 @@ function ready(queries) {
           .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
           .style("fill", color)
           .on("mouseover", function(d) {
+            return;
             d3.selectAll(".hexagons path")
               .style("fill-opacity", 0.2)
               .filter(function(p) {
@@ -280,16 +353,24 @@ function ready(queries) {
             d3.select(this).style("fill-opacity", 1);
           })
           .on("mouseout", function(d) {
+            return;
             d3.selectAll(".hexagons path")
               .style("fill-opacity", null);
           });
 
       svg.select(".count")
-        .text(lizards[index].length + " / " + queries[index].count);
+        .text("Loaded " + lizards[index].length + " of " + queries[index].count);
     }
 
     // background us states layer
     d3.json("world-110m.json", function(error, us) {
+      var sphere = {type: "Sphere"};
+
+      background.append("path")
+          .datum(sphere)
+          .attr("class", "water")
+          .attr("d", path);
+
       background.append("path")
           .datum(topojson.feature(us, us.objects.land))
           .attr("class", "land")
@@ -314,9 +395,6 @@ function ready(queries) {
     d3.json(url, function(error, data) {
       if (bail) return;
 
-      //console.log(data);
-      queries[index].count = data.count;
-    
       // use only lizards with geojson
       lizards[index] = lizards[index].concat(data.results.filter(function(d) {
         return !!d.geometry;
@@ -344,4 +422,20 @@ function ready(queries) {
   }
 }
 
+function updateColorBlocks(palette) {
+  var blocks = d3.select("#color-blocks")
+    .selectAll("span")
+    .data(palette)
+
+  blocks.exit().remove();
+
+  blocks.enter().append("span")
+    .style("margin-bottom", "-2px")
+    .style("width", "14px")
+    .style("height", "14px")
+    .style("display", "inline-block")
+
+  blocks
+    .style("background", String)
+};
 </script>

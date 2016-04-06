@@ -288,7 +288,7 @@
     map = __.map = L.map('map', {
       zoomControl: false,
       attributionControl: false,
-			worldCopyJump: true
+      worldCopyJump: true
     }).setView(defaultCenter, defaultZoom);
 
     map.scrollWheelZoom.disable();
@@ -366,6 +366,7 @@
         .classed("loaded", false)
         .classed("error", false)
         .text("Loading...");
+
       d3.json(ECO.endpoints.rasters, function(error, rasters) {
         if (error) {
           d3.select("#loading-view .rasters")
@@ -385,11 +386,6 @@
               .append("option")
               .attr("value", d.tile_template)
               .text(d.name);
-          } else {
-            d3.select("#environment-select")
-              .append("option")
-              .attr("value", d.tile_template)
-              .text(d.slug);
           }
         });
       });
@@ -398,11 +394,6 @@
       layers.results.forEach(function(d) {
           if (d.tags.indexOf("boundaries") > -1) {
             d3.select("#boundary-select")
-              .append("option")
-              .attr("value", d.tile_template)
-              .text(d.name);
-          } else {
-            d3.select("#environment-select")
               .append("option")
               .attr("value", d.tile_template)
               .text(d.name);
@@ -429,10 +420,92 @@
         boundaryLayer.setUrl(this.value);
       });
 
-    d3.select("#environment-select")
+    var nex_datasets = ECO.rasterPicker.metrics.filter(function(d) {
+      return "nex" in d && !!d["nex"];     // is this a NASA NEX raster?
+    });
+
+    var active_raster_color = "PuRd";
+    var raster_color_lookup = {};
+    nex_datasets.forEach(function(d) {
+      raster_color_lookup[d.slug] = "palette" in d ? d.palette : "YlGnBu";
+    });
+
+    // metric picker 
+    d3.select("#metric-picker")
       .on("change", function() {
-        environmentLayer.setUrl(this.value);
+        populateRasterPicker();
+      })
+      .selectAll("option")
+      .data(nex_datasets)
+      .enter().append("option")
+      .attr("value", function(d) { return d.slug; })
+      .text(function(d) { return d.name; });
+
+    // metric picker 
+    d3.select("#model-picker")
+      .on("change", function() {
+        populateRasterPicker();
+      })
+      .selectAll("option")
+      .data(ECO.rasterPicker.models)
+      .enter().append("option")
+      .attr("value", function(d) { return d.slug; })
+      .text(function(d) { return d.name; });
+
+    // raster picker
+    var rasterLookup = {};
+    d3.select("#raster-picker")
+      .on("change", function(d) {
+        if (this.value == "Select raster layer") return;
+        d3.select("#color-ramp-legend").style("display", "block");
+        var colorRamp = ColorRamp("#color-ramp", environmentLayer, active_raster_color);
+        colorRamp.raster(rasterLookup[this.value]);
+        colorRamp.updateLayer();
+        d3.selectAll(".raster-info").style("display", "inline-block");
+        d3.select("#raster-info").attr("href", "https://ecoengine.berkeley.edu/api/rstore/" + rasterLookup[this.value].slug);
       });
+
+    d3.select("#raster-close")
+      .on("click", populateRasterPicker);
+
+    populateRasterPicker();
+
+    function populateRasterPicker() {
+      // reset raster layer
+      d3.select("#color-ramp-legend").style("display", "none");
+      d3.selectAll(".raster-info").style("display", "none");
+      environmentLayer.setUrl(""); 
+
+      var slug = d3.select("#metric-picker").node().value + "_" + d3.select("#model-picker").node().value;
+      active_raster_color = raster_color_lookup[d3.select("#metric-picker").node().value];
+
+      d3.json("https://ecoengine.berkeley.edu/api/series/" + slug + "/rasters/?page_size=1000", function(error, resp) {
+        resp.results.forEach(function(d) {
+          rasterLookup[d.tile_template] = d;
+        });
+        
+        d3.select("#raster-picker")
+          .html("")
+
+        d3.select("#raster-picker")
+          .append("option")
+          .text("Select raster layer")
+
+        d3.select("#raster-picker")
+          .selectAll("option.raster-option")
+          .data(resp.results)
+          .enter().append("option")
+          .attr("class", "raster-option")
+          .attr("value", function(d) { return d.tile_template; })
+          .text(function(d) { return d.event; });
+
+        d3.select("#raster-picker")
+          .style("opacity", 0)
+          .transition()
+          .duration(600)
+          .style("opacity", 1);
+      });
+    };
 
     /*
     var apiLayer = L.tileLayer(ECO.endpoints.tiles, {
@@ -473,7 +546,9 @@
     }
 
     function onMarkerClick(evt) {
-      if ('url' in evt.target.data_) {
+      if ('remote_resource' in evt.target.data_ && evt.target.data_['remote_resource'].length > 0) {
+        window.open(evt.target.data_.remote_resource,'_blank');
+      } else if ('url' in evt.target.data_) {
         window.open(evt.target.data_.url,'_blank');
       } else if ('data_url' in evt.target.data_) {
         window.open(evt.target.data_.data_url,'_blank');

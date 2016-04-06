@@ -8,13 +8,13 @@ window.STMN = window.STMN || {};
     Search <input type="text" value="" id="searchterm" class="eco-param" placeholder="Species or Location" title="yyyy-mm-dd"></input>
     &nbsp; <input type="text" value="" id="minyear" class="eco-param" placeholder="Begin Date" title="yyyy-mm-dd"></input>
     <span id="time-slider"></span>
-    <input type="text" value="" id="maxyear" class="eco-param" placeholder="End Date"></input>
+    <input type="text" value="" id="maxyear" class="eco-param" placeholder="End Date" title="yyyy-mm-dd"></input>
     <!-- &nbsp; <div class="search-btn">Search</div> -->
     <div style="float: right;">
-      <a class="cursor" href=".">Reset</a>
-      &nbsp; <a class="cursor" id="advanced-search-btn">Advanced</a>
-      &nbsp; <a class="cursor" id="export-btn">Queries</a>
-      &nbsp; <a class="cursor" id="get-query-btn">Get query for Compare View</a>
+      <a class="cursor grey-button" href=".">Reset</a>
+      <a class="cursor grey-button" id="advanced-search-btn">Advanced</a>
+      <a class="cursor grey-button" id="export-btn">Queries</a>
+      <a class="cursor grey-button" id="get-query-btn">Get query for Compare</a>
     </div>
   </div>
   <div id="advanced-search" class="flydown">
@@ -65,8 +65,14 @@ window.STMN = window.STMN || {};
     <p id="detail-view">
     </p>
   </div>
-  <div class="map-area">
+  <div class="map-area right">
     <div id="map">
+    </div>
+    <div id="color-ramp-legend" style="display:none;">
+      <h3 class="title"></h3>
+      <div class="legend"></div>
+      <h3>Color Ramp</h3>
+      <select id="color-ramp"></select><br/>
     </div>
     <div class="layer-selection">
       <h3>Boundaries</h3>
@@ -74,9 +80,15 @@ window.STMN = window.STMN || {};
         <option value="">None</option>
       </select><br/>
       <h3>Environment</h3>
-      <select id="environment-select">
-        <option>None</option>
-      </select><br/>
+        <small>Climate Model:<br/></small>
+        <select id="metric-picker"></select><br/>
+        <small>Scenario:<br/></small>
+        <select id="model-picker"></select><br/>
+        <small>Date:<br/></small>
+        <select id="raster-picker"></select>
+        <span class="raster-info" style="display:none;">
+          <span id="raster-close" title="Remove environmental layer">x</span><a id="raster-info" target="_blank">i</a>
+        </span><br/>
       <h3>Basemap</h3>
       <select id="layer-select">
       </select>

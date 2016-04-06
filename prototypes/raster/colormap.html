@@ -1,0 +1,77 @@
+<meta charset="utf-8">
+<!-- based on https://gist.github.com/wboykinm/5264244 -->
+<html>
+<title>Custom Colorscale Test</title>
+<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.css" />
+<!--[if lte IE 8]>
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.ie.css" />
+<![endif]-->
+<script src="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.js"></script>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<style>
+body {
+  margin: 0;
+  font-family: "Montserrat", Avenir Next, Arial, Helvetica, sans-serif;
+}
+#map { height: 100%; }
+
+#color-ramp-legend {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  padding: 3px;
+  background: rgba(255, 255, 255, 0.2);
+  width: 100px;
+}
+#color-ramp-legend h3 {
+  text-align: center;
+  margin: 6px 0;
+  font-size: 12px;
+  line-height: 1.2em;
+}
+#color-ramp-legend .legend {
+  position: relative;
+  height: 210px;
+  width: 20px;
+  left: 25px;
+}
+#color-ramp-legend .axis text {
+  font: 12px sans-serif;
+}
+#color-ramp-legend .axis path {
+  display: none;
+}
+#color-ramp-legend .axis line {
+  fill: none;
+  stroke: #000;
+}
+#color-ramp-legend .legend svg,
+#color-ramp-legend .legend canvas {
+  position: absolute; 
+}
+#color-ramp-legend .legend canvas {
+  border: 1px solid #000;
+}
+</style>
+<div id="map"></div>
+<div id="color-ramp-legend">
+  <h3 class="title"></h3>
+  <div class="legend"></div>
+  <h3>Color Ramp</h3>
+  <select id="color-ramp"></select><br/>
+</div>
+<script src="color-ramp.js"></script>
+<script>
+var activeLayer = L.tileLayer('', {
+  maxZoom: 18,
+  attribution: ''
+});
+
+d3.json("https://ecoengine.berkeley.edu/api/rstore/pr_yr_ens-avg_amon_rcp45-2050-01-01/", function(error, raster) {
+  var map = L.map('map').setView([40, -122], 5);
+
+  var colorRamp = ColorRamp("#color-ramp", map);
+  colorRamp.raster(raster);
+  colorRamp.updateLayer();
+});
+</script>

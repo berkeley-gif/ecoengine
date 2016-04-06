@@ -13,7 +13,7 @@ Stamen built a search interface to explore the Berkeley Ecoengine API. Here's a 
   * Point, Polygon and Hexbinned observation layers
   * Accepts any EcoEngine GeoJSON observation query for comparison
 * [Lizards and Woodrats](http://stamen.github.io/ecoengine/prototypes/covis/lizards-woodrats.html)
-  * Spot spatially co-occuring observations by toggling layersj
+  * Spot spatially co-occuring observations by toggling layers
 * [Taxa Sampling Distributions](http://stamen.github.io/ecoengine/prototypes/covis/multiples-taxa.html)
   * Example of small mutiples to compare sampling distributions.
   * ColorBrewer palettes
@@ -124,10 +124,51 @@ As well as these stylesheets.
 
 * All data comes from the Berkeley Ecoinformatics API, documented at https://ecoengine.berkeley.edu/docs/quickstart.html
 
-### Static Assets
+### Raster Picker Configuration
 
-* /explore/index.html
-* /explore/config.js
+The raster picker is configured in `js/configure-explore.js` as a data structure called `ECO.rasterPicker`.
+
+The `models` show up in the Scenario dropdown in Explore. The  `metrics` show up as Climate Models in Explore.
+
+Only `metrics` with the value `nex` set to `true` will appear in the dropdown. The slugs from `metrics` and `models` are combined to create valid slugs for the [Ecoengine Series API](https://ecoengine.berkeley.edu/api/series/).
+
+`metrics` can also take a `palette` to change the default color ramp. See available values in the `colormap` variable in `js/color-ramp.js`. These colors are passed as the API parameter `style` to Ecoengine to get tiles using that palette. The color ramp can also be configured in Explore using the dropdown below the color legend.
+
+```javascript
+ECO.rasterPicker = {
+  "models": [
+    {
+      "name": "modern",
+      "slug": "historical"
+    },
+    {
+      "name": "RCP 4.5",
+      "slug": "rcp45"
+    },
+    {
+      "name": "RCP 8.5",
+      "slug": "rcp85"
+    }
+  ],
+  "metrics": [
+    {
+      "name": "precipitation yearly average",
+      "slug": "pr_yr_ens-avg_amon",
+      "nex": true,
+      "palette": "YlGnBu",
+    },
+    {
+      "name": "maximum temperature ensemble average",
+      "slug": "tasmax_ens-avg_amon",
+      "nex": true,
+      "palette": "YlOrRd",
+    },
+
+    /* ... */
+
+  ]
+};
+```
 
 ## Photos
 
@@ -137,7 +178,17 @@ A basic fullscreen photo viewer.
 
 ## How do I run the project locally?
 
-Clone the repo and a run a web serve in the project directory to view the project, or deploy it to a web server.
+### Install the dependencies
+
+```bash
+npm install
+```
+
+### Run the dev server
+
+```
+npm start
+```
 
 ## Holos integration
 A django/ninja2 compatible template has been added to the root of the build directory. This can be used as a ninja2 include to bring in the markup needed to run this application without the header and footer. The following files need to be linked in the main document:
